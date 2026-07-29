@@ -1,0 +1,44 @@
+# Build output
+build/
+out/
+cmake-build-*/
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+*.cmake
+!CMakeLists.txt
+
+# Compiled objects / binaries
+*.o
+*.obj
+*.exe
+*.a
+*.lib
+*.dll
+*.so
+*.dylib
+
+# ITCH sample data (large, downloaded separately)
+data/*.bin
+data/*.gz
+data/*ITCH*
+
+# Tooling / assistant artifacts (never publish)
+.claude/
+CLAUDE.md
+.cursor/
+.aider*
+.github/copilot*
+
+# Internal planning docs (not for publication)
+limit-order-book-matching-engine.md
+*.plan.md
+
+# Editor / OS
+.vs/
+.vscode/
+.idea/
+*.user
+Thumbs.db
+.DS_Store
