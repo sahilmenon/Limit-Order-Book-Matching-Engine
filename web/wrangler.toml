@@ -1,0 +1,7 @@
+# Cloudflare Pages config for the live demo. Deploy the static bundle with:
+#   cd web && wrangler pages deploy public
+# (needs CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID in the environment).
+# Custom domain: orderbook.sahilmenon.com.
+name = "orderbook"
+compatibility_date = "2024-09-23"
+pages_build_output_dir = "./public"

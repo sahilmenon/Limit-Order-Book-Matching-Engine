@@ -46,15 +46,13 @@ python -m http.server -d web/public 8080
 
 ## Deploy (Cloudflare Pages)
 
-`web/public/` is a static bundle; deploy it as-is. `_headers` sets the
-`application/wasm` content type.
+Live at **[orderbook.sahilmenon.com](https://orderbook.sahilmenon.com)** (Pages
+project `orderbook`). `web/public/` is a static bundle; `_headers` sets the
+`application/wasm` content type and `wrangler.toml` names the project.
 
 ```sh
-npx wrangler pages deploy web/public --project-name limit-order-book
+cd web && wrangler pages deploy public   # needs CLOUDFLARE_API_TOKEN + _ACCOUNT_ID
 ```
-
-Target custom domain: **orderbook.sahilmenon.com** (configure in the Pages
-project's Custom Domains, pointing at the deployment).
 
 ## Files
 

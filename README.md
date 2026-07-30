@@ -5,6 +5,10 @@ written in modern C++. Correctness comes first, speed second: the engine
 validates its book against replayed NASDAQ ITCH market data, then benchmarks
 throughput and latency phase by phase.
 
+**[▶ Live demo: orderbook.sahilmenon.com](https://orderbook.sahilmenon.com)** —
+the engine compiled to WebAssembly, matching synthetic flow or replaying a
+recorded NASDAQ feed in your browser.
+
 > **Status:** all five roadmap milestones are complete. A correctness-first
 > naive book, ITCH replay validated against real NASDAQ data, a cache-friendly
 > latency rewrite (~2.7× throughput), a reproducible benchmark, and a live
