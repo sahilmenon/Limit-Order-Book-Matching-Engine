@@ -13,7 +13,7 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
-add_executable(lob_tests test_order_book.cpp)
+add_executable(lob_tests test_order_book.cpp test_fast_order_book.cpp)
 target_link_libraries(lob_tests PRIVATE lob_core GTest::gtest_main)
 
 # ITCH reconstruction tests replay synthetic, spec-accurate ITCH 5.0 streams, so

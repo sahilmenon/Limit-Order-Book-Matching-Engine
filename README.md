@@ -59,16 +59,20 @@ snapshots — real evidence of correctness, not a shared bug.
 
 1. ✅ **Correct book, naive structures** — full lifecycle, unit-tested against hand-worked scenarios.
 2. ✅ **ITCH replay + validation** — parses NASDAQ TotalView-ITCH 5.0, rebuilds the book, and diffs byte-for-byte against an independent Python reference reconstruction. Verified on real feed data (2.8 M messages) plus synthetic-stream unit tests.
-3. ⬜ **Latency rewrite** — intrusive lists + flat O(1) price-level arrays + cache-line alignment; throughput and p50/p99 latency histograms.
-4. ⬜ **Optimization pass** — measure each change's delta on a reproducible benchmark.
+3. ✅ **Latency rewrite** — `FastOrderBook`: intrusive order pool + flat O(1) price-ladder array + 64-byte-aligned levels. Proven byte-for-byte identical to the naive book by a randomised differential test.
+4. ✅ **Optimization pass** — reproducible throughput + p50/p99/p99.9 latency benchmark (`bench`); the rewrite lands **~2.7× throughput** over the naive book. See [BENCHMARKS.md](BENCHMARKS.md).
 5. ⬜ **Live demo** — the engine in the browser.
 
 ## Layout
 
 ```
-include/lob/   public headers (types, order, trade, order_book)
-src/           matching-engine implementation
-tests/         GoogleTest unit tests
-benchmarks/    throughput/latency harness (in progress)
-data/          ITCH sample data (downloaded separately, git-ignored)
+include/lob/       public headers (types, order, trade, order_book, fast_order_book)
+include/lob/itch/  ITCH 5.0 decoder + book reconstructor
+include/lob/bench/ latency histogram utility
+src/               matching-engine implementations (naive + fast)
+src/itch/          ITCH reconstruction
+apps/              itch_validate (reconstruction tool) + bench (benchmark harness)
+scripts/           ITCH fetch + Python reference reconstructor + cross-validator
+tests/             GoogleTest unit + differential tests
+data/              ITCH sample data (downloaded separately, git-ignored)
 ```

@@ -17,7 +17,7 @@ endif()
 option(LOB_BUILD_TESTS "Build unit tests" ON)
 
 # --- Core library ----------------------------------------------------------
-add_library(lob_core src/order_book.cpp)
+add_library(lob_core src/order_book.cpp src/fast_order_book.cpp)
 target_include_directories(lob_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_compile_options(lob_core PRIVATE
     $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall -Wextra -Wpedantic>
@@ -34,10 +34,17 @@ target_compile_options(lob_itch PRIVATE
 add_executable(itch_validate apps/itch_validate.cpp)
 target_link_libraries(itch_validate PRIVATE lob_itch)
 
+# --- Benchmark harness -----------------------------------------------------
+add_executable(bench apps/bench.cpp)
+target_link_libraries(bench PRIVATE lob_core)
+target_compile_options(bench PRIVATE
+    $<$<CXX_COMPILER_ID:GNU,Clang>:-O3 -march=native>)
+
 # Statically link the GCC/libstdc++ runtime so the tool binaries are self-
 # contained and run without the compiler's DLLs on PATH (notably on Windows/MSYS2).
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_link_options(itch_validate PRIVATE -static -static-libgcc -static-libstdc++)
+    target_link_options(bench PRIVATE -static -static-libgcc -static-libstdc++)
 endif()
 
 # --- Tests -----------------------------------------------------------------
