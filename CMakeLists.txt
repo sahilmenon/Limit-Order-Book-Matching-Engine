@@ -23,6 +23,23 @@ target_compile_options(lob_core PRIVATE
     $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall -Wextra -Wpedantic>
     $<$<CXX_COMPILER_ID:MSVC>:/W4>)
 
+# --- ITCH reconstruction library + validator -------------------------------
+add_library(lob_itch src/itch/reconstructor.cpp)
+target_include_directories(lob_itch PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_link_libraries(lob_itch PUBLIC lob_core)
+target_compile_options(lob_itch PRIVATE
+    $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall -Wextra -Wpedantic>
+    $<$<CXX_COMPILER_ID:MSVC>:/W4>)
+
+add_executable(itch_validate apps/itch_validate.cpp)
+target_link_libraries(itch_validate PRIVATE lob_itch)
+
+# Statically link the GCC/libstdc++ runtime so the tool binaries are self-
+# contained and run without the compiler's DLLs on PATH (notably on Windows/MSYS2).
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_link_options(itch_validate PRIVATE -static -static-libgcc -static-libstdc++)
+endif()
+
 # --- Tests -----------------------------------------------------------------
 if(LOB_BUILD_TESTS)
     enable_testing()

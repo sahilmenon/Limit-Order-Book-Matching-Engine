@@ -186,6 +186,46 @@ std::vector<Trade> OrderBook::modify(OrderId id, Price new_price, Quantity new_q
     return add_limit(id, side, new_price, new_quantity);
 }
 
+void OrderBook::add_resting(OrderId id, Side side, Price price, Quantity quantity) {
+    if (quantity == 0) {
+        return;
+    }
+    Order order{
+        .id = id,
+        .side = side,
+        .type = OrderType::Limit,
+        .price = price,
+        .quantity = quantity,
+        .remaining = quantity,
+        .sequence = next_sequence_++,
+    };
+    rest(order);
+}
+
+bool OrderBook::reduce(OrderId id, Quantity qty) {
+    auto idx_it = index_.find(id);
+    if (idx_it == index_.end()) {
+        return false;
+    }
+    Order& order = *idx_it->second.it;
+    if (qty >= order.remaining) {
+        cancel(id);  // fully consumed
+    } else {
+        order.remaining -= qty;
+    }
+    return true;
+}
+
+void OrderBook::replace(OrderId old_id, OrderId new_id, Price price, Quantity quantity) {
+    auto idx_it = index_.find(old_id);
+    if (idx_it == index_.end()) {
+        return;  // unknown original: nothing to replace
+    }
+    const Side side = idx_it->second.it->side;
+    cancel(old_id);
+    add_resting(new_id, side, price, quantity);
+}
+
 std::optional<Price> OrderBook::best_bid() const {
     if (bids_.empty()) {
         return std::nullopt;

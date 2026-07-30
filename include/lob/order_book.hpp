@@ -55,6 +55,27 @@ public:
     // Returns the trades generated (empty unless a price change crosses).
     std::vector<Trade> modify(OrderId id, Price new_price, Quantity new_quantity);
 
+    // --- Book maintenance (no matching) ------------------------------------
+    //
+    // These apply explicit deltas rather than crossing the book. They exist for
+    // market-data reconstruction (e.g. NASDAQ ITCH), where executions, cancels
+    // and deletes are stated by the feed and must not be re-derived by matching.
+
+    // Place a resting order directly, bypassing the matching engine. The caller
+    // guarantees the order does not cross (true for a well-formed ITCH feed).
+    void add_resting(OrderId id, Side side, Price price, Quantity quantity);
+
+    // Reduce a resting order's open quantity by `qty` (ITCH execute/cancel).
+    // Removes the order when it reaches zero. Returns false if id is unknown.
+    bool reduce(OrderId id, Quantity qty);
+
+    // Delete a resting order outright (ITCH delete). Alias for cancel().
+    bool remove(OrderId id) { return cancel(id); }
+
+    // Replace a resting order (ITCH replace): delete old_id, then place new_id
+    // at the new price/quantity at the back of its level (loses time priority).
+    void replace(OrderId old_id, OrderId new_id, Price price, Quantity quantity);
+
     // --- Read-only queries -------------------------------------------------
 
     [[nodiscard]] std::optional<Price> best_bid() const;

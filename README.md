@@ -40,10 +40,25 @@ cmake --build build
 ctest --test-dir build --output-on-failure
 ```
 
+### Validating against real market data
+
+The unit tests replay synthetic, spec-accurate ITCH streams, so correctness is
+proven with no download. To additionally cross-check against a *real* NASDAQ
+session, fetch a prefix of a published TotalView-ITCH 5.0 file and diff the C++
+reconstruction against the independent Python reference:
+
+```sh
+python scripts/fetch_itch.py --date 12302019 --mb 32   # -> data/itch_sample.bin
+python scripts/validate_itch.py --cpp build/itch_validate   # rebuilds + diffs
+```
+
+A `MATCH` line means the two independent reconstructions produced identical depth
+snapshots — real evidence of correctness, not a shared bug.
+
 ## Roadmap
 
 1. ✅ **Correct book, naive structures** — full lifecycle, unit-tested against hand-worked scenarios.
-2. ⬜ **ITCH replay + validation** — parse NASDAQ TotalView-ITCH 5.0, rebuild the book, diff against a reference reconstruction.
+2. ✅ **ITCH replay + validation** — parses NASDAQ TotalView-ITCH 5.0, rebuilds the book, and diffs byte-for-byte against an independent Python reference reconstruction. Verified on real feed data (2.8 M messages) plus synthetic-stream unit tests.
 3. ⬜ **Latency rewrite** — intrusive lists + flat O(1) price-level arrays + cache-line alignment; throughput and p50/p99 latency histograms.
 4. ⬜ **Optimization pass** — measure each change's delta on a reproducible benchmark.
 5. ⬜ **Live demo** — the engine in the browser.

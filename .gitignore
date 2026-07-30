@@ -19,10 +19,11 @@ CMakeFiles/
 *.so
 *.dylib
 
-# ITCH sample data (large, downloaded separately)
+# ITCH sample data (large, downloaded separately) + generated snapshots
 data/*.bin
 data/*.gz
 data/*ITCH*
+data/*.csv
 
 # Tooling / assistant artifacts (never publish)
 .claude/
