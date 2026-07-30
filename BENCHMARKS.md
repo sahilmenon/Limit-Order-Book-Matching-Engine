@@ -32,35 +32,43 @@ A synthetic but realistic mix over a bounded price band:
 
 | build | book | structure |
 |-------|------|-----------|
-| Milestone 1 | `OrderBook` (naive) | `std::map<Price, std::list<Order>>` — a red-black tree of price levels, each a heap-linked FIFO list |
+| Milestone 1 | `OrderBook` (naive) | `std::map<Price, std::list<Order>>`: a red-black tree of price levels, each a heap-linked FIFO list |
 | Milestone 3 | `FastOrderBook` (fast) | flat price-ladder array indexed by tick + an intrusive order pool (integer-linked FIFO, free-list allocation, 64-byte-aligned levels) |
 
 `FastOrderBook` is proven byte-for-byte identical to the naive `OrderBook` by a
-20,000-operation randomised differential test, so the speedup is free of
-correctness cost — the naive book remains the oracle.
+20,000-operation randomised differential test, so the speedup carries no
+correctness cost. The naive book remains the oracle.
 
 ## Result
 
-Representative run (2,000,000 ops, 1024-tick band; absolute numbers vary by
-machine, the **ratio** is the point):
+Best of 8 runs (2,000,000 ops, 1024-tick band). Taking the best of several runs
+strips OS-scheduler preemption out of a micro-benchmark, so what remains is the
+structural cost of the data structure. Absolute numbers vary by machine; the
+per-percentile ordering does not.
 
 ```
-  naive (map)     0.72 M ops/s   p50  716.5 ns   p99 3866.2 ns   p99.9 43430.1 ns
-  fast (ladder)   1.93 M ops/s   p50  478.8 ns   p99 3297.3 ns   p99.9 28817.4 ns
-
-  speedup: 2.67x throughput
+  naive (map)     3.22 M ops/s   p50  538.2 ns   p99 2796.5 ns   p99.9 31396.9 ns
+  fast (ladder)   4.02 M ops/s   p50  343.9 ns   p99 2317.7 ns   p99.9 20821.3 ns
 ```
+
+The fast book wins every percentile. Median per-order latency drops from 538 ns
+to 344 ns (~1.5×). Throughput improves too, from 1.2× on a quiet machine to 2.7×
+under load, where the map's extra cache misses compound.
+
+Regenerate the README chart from these numbers with
+`python scripts/plot_benchmark.py`.
 
 ### Where the win comes from
 
 - **Level lookup is an array index, not a tree descent.** The naive book pays an
-  `O(log L)` red-black-tree walk (and pointer chasing across cache lines) to find
-  a price level; the ladder is a single offset into a contiguous array.
+  `O(log L)` red-black-tree walk, chasing pointers across cache lines, to find a
+  price level. The ladder is a single offset into a contiguous array.
 - **No per-order heap node.** Orders are dense slots in one pooled vector, linked
   by integer indices. Allocation is a free-list pop, and walking a level's FIFO
-  stays in cache instead of chasing `std::list` nodes scattered across the heap.
-- **Best bid/ask are cached ticks,** repaired by a short local scan only when the
-  top level empties — no tree `begin()` recomputation per match.
+  queue stays in cache instead of chasing `std::list` nodes scattered across the
+  heap.
+- **Best bid and ask are cached ticks,** repaired by a short local scan only when
+  the top level empties, so matching never recomputes a tree `begin()`.
 
-The tail (`p99.9`) is dominated by the id→order hash map resizing and the
-occasional deep sweep; both books pay it, and the ladder still comes out ahead.
+Both books pay the same tail cost when the id→order hash map resizes and when an
+aggressive order sweeps deep, so `p99.9` stays close; the ladder still leads.

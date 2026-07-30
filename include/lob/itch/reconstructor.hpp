@@ -14,7 +14,7 @@ namespace lob::itch {
 // Rebuilds the displayed order book for a single symbol from an ITCH 5.0 stream.
 //
 // ITCH states executions, cancels, deletes and replaces explicitly, so this is
-// pure event application onto the book's maintenance API — never matching. Only
+// pure event application onto the book's maintenance API, never matching. Only
 // messages for the target stock locate affect the book; order-reference messages
 // (E/C/X/D/U) carry no symbol, so we simply apply them and rely on the fact that
 // order references are unique per day: a reference we never added is not ours.

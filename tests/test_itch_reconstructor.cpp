@@ -3,7 +3,7 @@
 // messages (field offsets straight from the Nasdaq TotalView-ITCH 5.0 spec) and
 // replay them through the Reconstructor, asserting the rebuilt book. Because the
 // bytes are built to the published spec, agreement here is real evidence the
-// decoder handles the wire format correctly — the same decoder then drives the
+// decoder handles the wire format correctly; the same decoder then drives the
 // itch_validate tool against genuine feeds.
 
 #include "lob/itch/itch.hpp"

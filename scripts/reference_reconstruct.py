@@ -31,7 +31,7 @@ def be(payload: bytes, off: int, width: int) -> int:
 
 def select_symbol(data: bytes, ticker: str | None):
     """Return (target_locate, ticker). Auto-selects the most active symbol,
-    tie-broken by smallest locate — identical rule to the C++ validator."""
+    tie-broken by smallest locate: identical rule to the C++ validator."""
     locate_to_ticker: dict[int, str] = {}
     adds = defaultdict(int)
     for p in frames(data):

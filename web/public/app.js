@@ -60,7 +60,7 @@ async function main() {
 
   const seed = (Date.now() & 0xffffffff) >>> 0;
   const sim = new mod.MarketSim(seed, FLOOR, TICKS, QTY_MAX);
-  status.textContent = "engine live — matching in WebAssembly";
+  status.textContent = "engine live · matching in WebAssembly";
 
   let running = true;
   let batch = 12; // orders per frame; driven by the speed slider

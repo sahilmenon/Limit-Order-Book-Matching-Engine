@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Fetch a prefix of a real NASDAQ TotalView-ITCH 5.0 file for validation.
 
-The published daily files are 3-5 GB gzipped (tens of GB raw) — far more than a
+The published daily files are 3-5 GB gzipped (tens of GB raw), far more than a
 correctness check needs. This downloads only the first N megabytes via an HTTP
 Range request, then streams them through gunzip, stopping cleanly when the
 compressed prefix runs out. The result is a truncated-but-valid ITCH byte stream
@@ -43,7 +43,7 @@ def fetch_prefix(date: str, mb: int, out: Path) -> None:
             try:
                 raw = dec.decompress(chunk)
             except zlib.error as e:
-                # Truncated deflate stream at our cut point — keep what we have.
+                # Truncated deflate stream at our cut point; keep what we have.
                 print(f"  (stream cut mid-block: {e}); using decoded prefix", flush=True)
                 break
             fh.write(raw)
@@ -51,7 +51,7 @@ def fetch_prefix(date: str, mb: int, out: Path) -> None:
 
     print(f"Wrote {out} ({raw_total / 1048576:.1f} MB raw ITCH)", flush=True)
     if raw_total == 0:
-        sys.exit("error: decoded 0 bytes — download or gunzip failed")
+        sys.exit("error: decoded 0 bytes; download or gunzip failed")
 
 
 def main() -> int:

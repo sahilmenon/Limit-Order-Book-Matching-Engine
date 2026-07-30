@@ -184,7 +184,7 @@ std::vector<Trade> FastOrderBook::add_market(OrderId id, Side side, Quantity qua
     } else {
         match<false>(incoming, trades);
     }
-    // Unfilled market quantity is discarded (never rests) — same as OrderBook.
+    // Unfilled market quantity is discarded (never rests), same as OrderBook.
     return trades;
 }
 

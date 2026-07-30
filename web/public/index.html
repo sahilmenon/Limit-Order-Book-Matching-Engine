@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Limit Order Book — live matching engine (WASM)</title>
+    <title>Limit Order Book · live matching engine (WASM)</title>
     <meta
       name="description"
       content="A C++20 price-time-priority matching engine compiled to WebAssembly, matching a live synthetic order flow in your browser."
@@ -29,6 +29,33 @@
           </label>
         </div>
       </header>
+
+      <section class="explainer">
+        <p>
+          There's no live market feed here. A stream of synthetic orders (resting
+          quotes on both sides, plus aggressive orders that cross the spread) is
+          generated and matched entirely in WebAssembly. What you see is that book,
+          updated every frame:
+        </p>
+        <ul class="legend">
+          <li>
+            <span class="tag">Ladder</span> resting limit orders by price. Asks
+            (sells) sit above the mid, bids (buys) below; the bar shows size
+            relative to the deepest level. The best bid and best ask meet at the
+            spread.
+          </li>
+          <li>
+            <span class="tag">Tape</span> executions as they print, newest on top.
+            A trade fires whenever an incoming order crosses the spread and matches
+            resting size at the maker's price.
+          </li>
+          <li>
+            <span class="tag">Stats</span> live top of book, the count of resting
+            orders, cumulative matches, and how many orders the engine is
+            processing per second. Drag <em>Speed</em> to push it harder.
+          </li>
+        </ul>
+      </section>
 
       <section class="stats" id="stats">
         <div class="stat"><span class="label">Best bid</span><span id="s-bid" class="val bid">—</span></div>

@@ -1,6 +1,6 @@
 // WebAssembly entry point for the live browser demo. Wraps FastOrderBook in a
-// self-contained market simulator so the *entire* hot loop — order generation
-// and matching — runs in WASM; JavaScript only pulls a snapshot each frame and
+// self-contained market simulator so the *entire* hot loop (order generation
+// and matching) runs in WASM; JavaScript only pulls a snapshot each frame and
 // draws it. Built with Emscripten + embind (see web/build.sh).
 
 #include <cstdint>
@@ -17,7 +17,7 @@ using namespace lob;
 
 namespace {
 
-// Append an integer to a JSON string without pulling in a JSON library — the
+// Append an integer to a JSON string without pulling in a JSON library. The
 // snapshot is tiny and built many times per second, so this stays allocation-lean.
 void put_int(std::string& s, long long v) { s += std::to_string(v); }
 
@@ -25,7 +25,7 @@ void put_int(std::string& s, long long v) { s += std::to_string(v); }
 
 // A tiny synthetic exchange: a stream of passive and aggressive orders around a
 // wandering mid-price, matched by the real engine. Produces a live, moving book
-// and a trade tape — enough to show the matching engine working, with no data to
+// and a trade tape, enough to show the matching engine working, with no data to
 // download.
 class MarketSim {
 public:

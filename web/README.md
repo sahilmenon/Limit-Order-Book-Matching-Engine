@@ -1,8 +1,8 @@
 # Live browser demo
 
 The C++20 matching engine (`FastOrderBook`) compiled to WebAssembly, matching a
-live synthetic order flow entirely in the browser. The whole hot loop — order
-generation *and* matching — runs in WASM (`web/wasm/lob_wasm.cpp`, a `MarketSim`
+live synthetic order flow entirely in the browser. The whole hot loop, order
+generation *and* matching, runs in WASM (`web/wasm/lob_wasm.cpp`, a `MarketSim`
 wrapper); the JavaScript in `public/` only pulls a JSON snapshot each frame and
 paints the depth ladder and trade tape.
 
@@ -28,7 +28,7 @@ python -m http.server -d web/public 8080
 
 ## Deploy (Cloudflare Pages)
 
-`web/public/` is a static bundle — deploy it as-is. `_headers` sets the
+`web/public/` is a static bundle; deploy it as-is. `_headers` sets the
 `application/wasm` content type.
 
 ```sh

@@ -52,7 +52,7 @@ def main() -> int:
     args = ap.parse_args()
 
     if not args.bin.exists():
-        sys.exit(f"error: {args.bin} not found — run scripts/fetch_itch.py first")
+        sys.exit(f"error: {args.bin} not found; run scripts/fetch_itch.py first")
 
     cpp = find_cpp_binary(args.cpp)
     cpp_csv = args.bin.with_suffix(".cpp.csv")

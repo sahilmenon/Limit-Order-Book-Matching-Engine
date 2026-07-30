@@ -13,7 +13,7 @@
 namespace lob::bench {
 
 // Reads the CPU timestamp counter where available (single-instruction, ~sub-ns
-// resolution — the only clock fine-grained enough to time individual order-book
+// resolution: the only clock fine-grained enough to time individual order-book
 // operations, which run in tens of nanoseconds). Falls back to steady_clock ns
 // on non-x86. The unit is "ticks"; calibrate() converts ticks to nanoseconds.
 inline std::uint64_t now_ticks() noexcept {
