@@ -1,10 +1,28 @@
 # Live browser demo
 
-The C++20 matching engine (`FastOrderBook`) compiled to WebAssembly, matching a
-live synthetic order flow entirely in the browser. The whole hot loop, order
-generation *and* matching, runs in WASM (`web/wasm/lob_wasm.cpp`, a `MarketSim`
-wrapper); the JavaScript in `public/` only pulls a JSON snapshot each frame and
-paints the depth ladder and trade tape.
+The C++20 matching engine compiled to WebAssembly, running entirely in the
+browser. Two sources share one render path:
+
+- **Synthetic** (`MarketSim`): generates and matches random order flow through
+  `FastOrderBook`. The whole hot loop runs in WASM.
+- **Real** (`ItchReplay`): rebuilds a recorded NASDAQ TotalView-ITCH slice
+  (Apple) through the naive `OrderBook`'s maintenance API, the same reconstruction
+  path Milestone 2 validates against a Python reference.
+
+The JavaScript in `public/` only pulls a JSON snapshot each frame and paints the
+depth ladder and trade tape.
+
+## Recorded ITCH slice
+
+The real-data mode ships a compact, self-contained per-symbol ITCH stream
+(`public/sample.itch.bin`, ~120 KB) carved from a full session so the browser
+never downloads gigabytes. Regenerate it from a fetched file:
+
+```sh
+python scripts/fetch_itch.py --date 12302019 --mb 32          # -> data/itch_sample.bin
+python scripts/extract_symbol_itch.py --ticker AAPL \
+    --out web/public/sample.itch.bin                          # -> slice + .json sidecar
+```
 
 ## Build the WASM
 

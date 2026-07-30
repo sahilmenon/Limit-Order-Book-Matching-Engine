@@ -16,12 +16,16 @@
         <div>
           <h1>Limit Order Book <span class="accent">/ matching engine</span></h1>
           <p class="sub">
-            C++20 price-time-priority engine compiled to WebAssembly. Every order
-            below is generated and matched in-browser by the same
-            <code>FastOrderBook</code> that runs the native benchmark.
+            A C++20 price-time-priority matching engine compiled to WebAssembly.
+            Switch between synthetic order flow and a recorded NASDAQ ITCH replay;
+            both run entirely in your browser.
           </p>
         </div>
         <div class="controls">
+          <div class="segmented" role="group" aria-label="Order source">
+            <button id="mode-syn" class="seg active">Synthetic</button>
+            <button id="mode-real" class="seg">Real · AAPL</button>
+          </div>
           <button id="toggle" class="btn">Pause</button>
           <label class="speed">
             Speed
@@ -32,10 +36,12 @@
 
       <section class="explainer">
         <p>
-          There's no live market feed here. A stream of synthetic orders (resting
-          quotes on both sides, plus aggressive orders that cross the spread) is
-          generated and matched entirely in WebAssembly. What you see is that book,
-          updated every frame:
+          Two sources, one engine. <strong>Synthetic</strong> generates a stream
+          of orders (resting quotes on both sides, plus aggressive orders that
+          cross the spread) and matches them live. <strong>Real · AAPL</strong>
+          replays a recorded slice of NASDAQ TotalView-ITCH, rebuilding Apple's
+          actual book from that session. Both run entirely in WebAssembly and
+          update every frame:
         </p>
         <ul class="legend">
           <li>
@@ -62,7 +68,7 @@
         <div class="stat"><span class="label">Best ask</span><span id="s-ask" class="val ask">—</span></div>
         <div class="stat"><span class="label">Spread</span><span id="s-spread" class="val">—</span></div>
         <div class="stat"><span class="label">Resting orders</span><span id="s-resting" class="val">—</span></div>
-        <div class="stat"><span class="label">Orders matched</span><span id="s-ops" class="val">—</span></div>
+        <div class="stat"><span class="label" id="ops-label">Orders matched</span><span id="s-ops" class="val">—</span></div>
         <div class="stat"><span class="label">Throughput</span><span id="s-rate" class="val">—</span></div>
       </section>
 

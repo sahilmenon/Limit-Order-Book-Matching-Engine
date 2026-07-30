@@ -15,6 +15,7 @@ mkdir -p "$OUT"
 emcc \
   "$ROOT/web/wasm/lob_wasm.cpp" \
   "$ROOT/src/fast_order_book.cpp" \
+  "$ROOT/src/order_book.cpp" \
   -I "$ROOT/include" \
   -std=c++20 -O3 \
   --bind \

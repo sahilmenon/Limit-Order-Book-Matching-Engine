@@ -12,8 +12,10 @@ throughput and latency phase by phase.
 
 ![Live order book demo](docs/demo.png)
 
-*The C++ engine compiled to WebAssembly, matching a synthetic order flow live in
-the browser: depth ladder, trade tape, and throughput. Build it under [web/](web/).*
+*The C++ engine compiled to WebAssembly, running live in the browser. Toggle
+between synthetic order flow and a recorded NASDAQ ITCH replay (Apple's real
+book, shown above): depth ladder, trade tape, and throughput. Build it under
+[web/](web/).*
 
 ## What it does
 

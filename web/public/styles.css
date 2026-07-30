@@ -85,6 +85,38 @@ h1 .accent {
   border-color: var(--accent);
 }
 
+.segmented {
+  display: inline-flex;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.seg {
+  background: var(--panel);
+  color: var(--muted);
+  border: 0;
+  padding: 8px 14px;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.seg + .seg {
+  border-left: 1px solid var(--line);
+}
+
+.seg.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.seg:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
 .speed {
   font-size: 12px;
   color: var(--muted);

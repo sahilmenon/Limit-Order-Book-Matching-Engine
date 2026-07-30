@@ -10,8 +10,11 @@
 #include <vector>
 
 #include <emscripten/bind.h>
+#include <emscripten/val.h>
 
 #include "lob/fast_order_book.hpp"
+#include "lob/itch/itch.hpp"
+#include "lob/order_book.hpp"
 
 using namespace lob;
 
@@ -185,10 +188,178 @@ private:
     std::uint64_t total_trades_ = 0;
 };
 
+// Replays a recorded NASDAQ TotalView-ITCH 5.0 stream for one symbol, rebuilding
+// the real displayed book through the order book's non-matching maintenance API
+// (the same path Milestone 2 validates against a Python reference). The input is
+// a compact per-symbol slice carved by scripts/extract_symbol_itch.py, so the
+// browser replays genuine market data without shipping a multi-GB session.
+class ItchReplay {
+public:
+    // Copy an ITCH byte slice in from JS (a Uint8Array) and rewind to the start.
+    void load(emscripten::val bytes) {
+        buf_ = emscripten::convertJSArrayToNumberVector<std::uint8_t>(bytes);
+        reset();
+    }
+
+    void reset() {
+        book_ = OrderBook{};
+        tape_.clear();
+        pos_ = 0;
+        applied_ = 0;
+        execs_ = 0;
+    }
+
+    // Apply the next `n` messages; returns executions seen this call. When the
+    // slice ends it loops: the book is rebuilt from the top so the demo runs on.
+    int step(int n) {
+        int e = 0;
+        for (int i = 0; i < n; ++i) {
+            if (pos_ + 2 > buf_.size()) {
+                book_ = OrderBook{};  // wrap and replay from the start
+                pos_ = 0;
+            }
+            if (pos_ + 2 > buf_.size()) break;  // buffer too small / empty
+            const std::size_t len = itch::be16(&buf_[pos_]);
+            if (len == 0 || pos_ + 2 + len > buf_.size()) {
+                pos_ = buf_.size();  // truncated tail: stop this pass, wrap next call
+                continue;
+            }
+            const std::uint8_t* p = &buf_[pos_ + 2];
+            pos_ += 2 + len;
+            e += apply_one(p);
+        }
+        return e;
+    }
+
+    std::string snapshot(int levels) {
+        std::string s;
+        s.reserve(2048);
+        s += "{\"bids\":[";
+        emit_map(s, book_.bids(), static_cast<std::size_t>(levels));
+        s += "],\"asks\":[";
+        emit_map(s, book_.asks(), static_cast<std::size_t>(levels));
+        s += "],\"tape\":[";
+        for (std::size_t i = 0; i < tape_.size(); ++i) {
+            const Trade& t = tape_[i];
+            if (i) s += ',';
+            s += '[';
+            put_int(s, t.price);
+            s += ',';
+            put_int(s, static_cast<long long>(t.quantity));
+            s += ',';
+            put_int(s, t.taker_side == Side::Buy ? 1 : 0);
+            s += ']';
+        }
+        s += "],\"stats\":{\"ops\":";
+        put_int(s, static_cast<long long>(applied_));
+        s += ",\"trades\":";
+        put_int(s, static_cast<long long>(execs_));
+        s += ",\"resting\":";
+        put_int(s, static_cast<long long>(book_.order_count()));
+        s += ",\"bid\":";
+        put_int(s, book_.best_bid() ? *book_.best_bid() : 0);
+        s += ",\"ask\":";
+        put_int(s, book_.best_ask() ? *book_.best_ask() : 0);
+        s += ",\"progress\":";
+        put_int(s, buf_.empty() ? 0 : static_cast<long long>(pos_ * 100 / buf_.size()));
+        s += "}}";
+        return s;
+    }
+
+private:
+    // Apply one ITCH message to the book; return 1 if it was an execution.
+    int apply_one(const std::uint8_t* p) {
+        switch (static_cast<char>(p[0])) {
+            case itch::AddOrder:
+            case itch::AddOrderMPID: {
+                const OrderId ref = itch::be64(p + 11);
+                const Side side = itch::side_from_itch(p[19]);
+                const Quantity shares = itch::be32(p + 20);
+                const Price price = static_cast<Price>(itch::be32(p + 32));
+                book_.add_resting(ref, side, price, shares);
+                ++applied_;
+                return 0;
+            }
+            case itch::OrderExecuted:
+            case itch::OrderExecutedWithPrice: {
+                const OrderId ref = itch::be64(p + 11);
+                const Quantity shares = itch::be32(p + 19);
+                // ITCH names only the resting order; read its price/side for the
+                // tape, then reduce. The aggressor is the opposite side.
+                if (auto maker = book_.find_order(ref)) {
+                    record_exec(maker->price, shares, opposite(maker->side));
+                    book_.reduce(ref, shares);
+                    ++applied_;
+                }
+                return 1;
+            }
+            case itch::OrderCancel: {
+                book_.reduce(itch::be64(p + 11), itch::be32(p + 19));
+                ++applied_;
+                return 0;
+            }
+            case itch::OrderDelete: {
+                book_.remove(itch::be64(p + 11));
+                ++applied_;
+                return 0;
+            }
+            case itch::OrderReplace: {
+                const OrderId orig = itch::be64(p + 11);
+                const OrderId repl = itch::be64(p + 19);
+                const Quantity shares = itch::be32(p + 27);
+                const Price price = static_cast<Price>(itch::be32(p + 31));
+                book_.replace(orig, repl, price, shares);
+                ++applied_;
+                return 0;
+            }
+            default:
+                return 0;  // R and other messages don't move the displayed book
+        }
+    }
+
+    void record_exec(Price price, Quantity shares, Side taker_side) {
+        tape_.push_front(Trade{0, 0, price, shares, taker_side});
+        if (tape_.size() > 40) tape_.pop_back();
+        ++execs_;
+    }
+
+    // Emit up to `levels` (price, aggregate qty) pairs from a best-first side map.
+    template <typename Map>
+    void emit_map(std::string& s, const Map& side, std::size_t levels) {
+        std::size_t emitted = 0;
+        for (const auto& [price, level] : side) {
+            if (emitted >= levels) break;
+            Quantity total = 0;
+            for (const Order& o : level) total += o.remaining;
+            if (emitted) s += ',';
+            s += '[';
+            put_int(s, price);
+            s += ',';
+            put_int(s, static_cast<long long>(total));
+            s += ']';
+            ++emitted;
+        }
+    }
+
+    OrderBook book_;
+    std::vector<std::uint8_t> buf_;
+    std::deque<Trade> tape_;
+    std::size_t pos_ = 0;
+    std::uint64_t applied_ = 0;
+    std::uint64_t execs_ = 0;
+};
+
 EMSCRIPTEN_BINDINGS(lob_module) {
     emscripten::class_<MarketSim>("MarketSim")
         .constructor<unsigned, int, int, int>()
         .function("step", &MarketSim::step)
         .function("snapshot", &MarketSim::snapshot)
         .function("tickSize", &MarketSim::tick_size);
+
+    emscripten::class_<ItchReplay>("ItchReplay")
+        .constructor<>()
+        .function("load", &ItchReplay::load)
+        .function("step", &ItchReplay::step)
+        .function("snapshot", &ItchReplay::snapshot)
+        .function("reset", &ItchReplay::reset);
 }

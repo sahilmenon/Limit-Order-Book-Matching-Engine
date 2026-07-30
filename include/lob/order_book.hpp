@@ -88,6 +88,14 @@ public:
     [[nodiscard]] std::size_t order_count() const { return index_.size(); }
     [[nodiscard]] bool empty() const { return index_.empty(); }
 
+    // The resting order with this id, or nullopt. Used by ITCH replay to read a
+    // maker's price and side before an execution reduces it (ITCH executions name
+    // only the order reference and share count, not the price).
+    [[nodiscard]] std::optional<Order> find_order(OrderId id) const {
+        auto it = index_.find(id);
+        return it == index_.end() ? std::nullopt : std::optional<Order>(*it->second.it);
+    }
+
     const BidMap& bids() const { return bids_; }
     const AskMap& asks() const { return asks_; }
 
