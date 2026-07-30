@@ -125,7 +125,7 @@ private:
         ++total_ops_;
         std::uniform_int_distribution<int> roll(0, 99);
         const int r = roll(rng_);
-        const bool buy = (rng_ & 1) != 0;
+        const bool buy = (rng_() & 1) != 0;
         const Side side = buy ? Side::Buy : Side::Sell;
 
         // Track the mid from the live book so quotes cluster around the market.

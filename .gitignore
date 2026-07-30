@@ -27,6 +27,7 @@ data/*.csv
 
 # Tooling / assistant artifacts (never publish)
 .claude/
+.playwright-mcp/
 CLAUDE.md
 .cursor/
 .aider*

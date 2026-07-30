@@ -5,9 +5,15 @@ written in modern C++. The goal is a core that is *correct first* and *fast
 second*: correctness is validated against replayed real NASDAQ ITCH market data,
 and throughput/latency are benchmarked phase by phase.
 
-> **Status:** early build. Milestone 1 (correct book on naive structures, fully
-> unit-tested) is complete. Latency rewrite, ITCH validation, and benchmarks are
-> in progress — see the roadmap below.
+> **Status:** all five roadmap milestones are complete — a correctness-first
+> naive book, ITCH replay validated against real NASDAQ data, a cache-friendly
+> latency rewrite (~2.7× throughput), a reproducible benchmark, and a live
+> WebAssembly browser demo. See the roadmap below.
+
+![Live order book demo](docs/demo.png)
+
+*The C++ engine compiled to WebAssembly, matching a synthetic order flow live in
+the browser — depth ladder, trade tape, and throughput. Build it under [web/](web/).*
 
 ## What it does
 
@@ -61,7 +67,7 @@ snapshots — real evidence of correctness, not a shared bug.
 2. ✅ **ITCH replay + validation** — parses NASDAQ TotalView-ITCH 5.0, rebuilds the book, and diffs byte-for-byte against an independent Python reference reconstruction. Verified on real feed data (2.8 M messages) plus synthetic-stream unit tests.
 3. ✅ **Latency rewrite** — `FastOrderBook`: intrusive order pool + flat O(1) price-ladder array + 64-byte-aligned levels. Proven byte-for-byte identical to the naive book by a randomised differential test.
 4. ✅ **Optimization pass** — reproducible throughput + p50/p99/p99.9 latency benchmark (`bench`); the rewrite lands **~2.7× throughput** over the naive book. See [BENCHMARKS.md](BENCHMARKS.md).
-5. ⬜ **Live demo** — the engine in the browser.
+5. ✅ **Live demo** — the engine compiled to WebAssembly, matching a live synthetic order flow in the browser (depth ladder + trade tape). See [web/](web/).
 
 ## Layout
 
