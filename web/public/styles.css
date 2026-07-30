@@ -1,0 +1,274 @@
+:root {
+  --bg: #0b0e14;
+  --panel: #111722;
+  --line: #1e2735;
+  --text: #d7dde8;
+  --muted: #78859b;
+  --bid: #26c281;
+  --bid-dim: rgba(38, 194, 129, 0.14);
+  --ask: #ef5350;
+  --ask-dim: rgba(239, 83, 80, 0.14);
+  --accent: #5b8def;
+  font-family: "SF Mono", "JetBrains Mono", ui-monospace, "Cascadia Code",
+    Menlo, Consolas, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(1200px 600px at 70% -10%, #16203010, transparent),
+    var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+.app {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 32px 24px 48px;
+}
+
+.masthead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+h1 {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0 0 6px;
+  letter-spacing: -0.01em;
+}
+
+h1 .accent {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.sub {
+  margin: 0;
+  max-width: 620px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.sub code {
+  color: var(--accent);
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.btn {
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.btn:hover {
+  border-color: var(--accent);
+}
+
+.speed {
+  font-size: 12px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.speed input {
+  accent-color: var(--accent);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  margin: 24px 0;
+}
+
+.stat {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat .label {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.stat .val {
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+}
+
+.val.bid {
+  color: var(--bid);
+}
+.val.ask {
+  color: var(--ask);
+}
+
+.book {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 16px;
+}
+
+.ladder,
+.tape {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.colhead {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 4px 8px 8px;
+}
+
+.tape .colhead {
+  grid-template-columns: 1.4fr 1fr 0.8fr;
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  padding: 3px 8px;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  border-radius: 4px;
+}
+
+.row .depthbar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  border-radius: 4px;
+  z-index: 0;
+}
+
+.row span {
+  position: relative;
+  z-index: 1;
+}
+
+.asks .row .price {
+  color: var(--ask);
+}
+.asks .row .depthbar {
+  background: var(--ask-dim);
+}
+.bids .row .price {
+  color: var(--bid);
+}
+.bids .row .depthbar {
+  background: var(--bid-dim);
+}
+
+.row .size,
+.row .depthcol {
+  text-align: left;
+  color: var(--text);
+}
+
+.mid {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 10px 8px;
+  margin: 6px 0;
+  border-top: 1px dashed var(--line);
+  border-bottom: 1px dashed var(--line);
+  font-variant-numeric: tabular-nums;
+}
+
+#mid-price {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.mid-label {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.tape .row {
+  grid-template-columns: 1.4fr 1fr 0.8fr;
+}
+
+.tape .row.buy .price {
+  color: var(--bid);
+}
+.tape .row.sell .price {
+  color: var(--ask);
+}
+.tape .row .t {
+  color: var(--muted);
+}
+
+.foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.foot .src {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.foot .src:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 860px) {
+  .stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .book {
+    grid-template-columns: 1fr;
+  }
+}

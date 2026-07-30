@@ -247,6 +247,25 @@ std::optional<Price> FastOrderBook::best_ask() const {
     return to_price(best_ask_tick_);
 }
 
+std::vector<std::pair<Price, Quantity>> FastOrderBook::depth(Side side,
+                                                            std::size_t max_levels) const {
+    std::vector<std::pair<Price, Quantity>> out;
+    out.reserve(max_levels);
+    const auto n = static_cast<std::int64_t>(num_ticks_);
+    if (side == Side::Buy) {
+        for (std::int64_t t = best_bid_tick_; t >= 0 && out.size() < max_levels; --t) {
+            if (ladder_[static_cast<std::size_t>(t)].head != kInvalid)
+                out.emplace_back(to_price(t), ladder_[static_cast<std::size_t>(t)].total);
+        }
+    } else {
+        for (std::int64_t t = best_ask_tick_; t >= 0 && t < n && out.size() < max_levels; ++t) {
+            if (ladder_[static_cast<std::size_t>(t)].head != kInvalid)
+                out.emplace_back(to_price(t), ladder_[static_cast<std::size_t>(t)].total);
+        }
+    }
+    return out;
+}
+
 Quantity FastOrderBook::quantity_at(Side side, Price price) const {
     if (!in_range(price)) return 0;
     const Level& lvl = ladder_[static_cast<std::size_t>(to_tick(price))];

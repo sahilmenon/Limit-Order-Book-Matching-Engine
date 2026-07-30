@@ -46,6 +46,11 @@ public:
     [[nodiscard]] std::optional<Price> best_bid() const;
     [[nodiscard]] std::optional<Price> best_ask() const;
     [[nodiscard]] Quantity quantity_at(Side side, Price price) const;
+
+    // Aggregated depth from the top of `side` outward: up to `max_levels`
+    // (price, resting quantity) pairs, best price first. For rendering a ladder.
+    [[nodiscard]] std::vector<std::pair<Price, Quantity>> depth(Side side,
+                                                               std::size_t max_levels) const;
     [[nodiscard]] bool contains(OrderId id) const { return index_.count(id) != 0; }
     [[nodiscard]] std::size_t order_count() const { return index_.size(); }
     [[nodiscard]] bool empty() const { return index_.empty(); }

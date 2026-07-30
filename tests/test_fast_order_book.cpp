@@ -96,6 +96,31 @@ TEST(FastOrderBook, MatchesNaiveOnMarketOrderAndModify) {
     expect_same_book(naive, fast, 100, 200);
 }
 
+TEST(FastOrderBook, DepthReportsAggregatedLevelsBestFirst) {
+    FastOrderBook fast(100, 100);
+    fast.add_limit(1, Side::Buy, 140, 10);
+    fast.add_limit(2, Side::Buy, 140, 5);   // same level aggregates to 15
+    fast.add_limit(3, Side::Buy, 138, 7);
+    fast.add_limit(4, Side::Sell, 145, 4);
+    fast.add_limit(5, Side::Sell, 147, 9);
+
+    auto bids = fast.depth(Side::Buy, 10);
+    ASSERT_EQ(bids.size(), 2u);
+    EXPECT_EQ(bids[0].first, 140);   // best (highest) bid first
+    EXPECT_EQ(bids[0].second, 15u);
+    EXPECT_EQ(bids[1].first, 138);
+    EXPECT_EQ(bids[1].second, 7u);
+
+    auto asks = fast.depth(Side::Sell, 10);
+    ASSERT_EQ(asks.size(), 2u);
+    EXPECT_EQ(asks[0].first, 145);   // best (lowest) ask first
+    EXPECT_EQ(asks[0].second, 4u);
+    EXPECT_EQ(asks[1].first, 147);
+
+    // max_levels caps the result.
+    EXPECT_EQ(fast.depth(Side::Buy, 1).size(), 1u);
+}
+
 // The main event: a long randomised workload. Any divergence in matching,
 // priority, cancel/modify bookkeeping, or best-of-book tracking surfaces here.
 TEST(FastOrderBook, MatchesNaiveOnRandomisedWorkload) {

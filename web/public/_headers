@@ -1,0 +1,8 @@
+# Cloudflare Pages headers. WebAssembly must be served as application/wasm for
+# streaming compilation; hash-free filenames here so a short cache is safest.
+/lob.wasm
+  Content-Type: application/wasm
+  Cache-Control: public, max-age=3600
+
+/lob.js
+  Cache-Control: public, max-age=3600

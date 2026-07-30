@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Limit Order Book — live matching engine (WASM)</title>
+    <meta
+      name="description"
+      content="A C++20 price-time-priority matching engine compiled to WebAssembly, matching a live synthetic order flow in your browser."
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="masthead">
+        <div>
+          <h1>Limit Order Book <span class="accent">/ matching engine</span></h1>
+          <p class="sub">
+            C++20 price-time-priority engine compiled to WebAssembly. Every order
+            below is generated and matched in-browser by the same
+            <code>FastOrderBook</code> that runs the native benchmark.
+          </p>
+        </div>
+        <div class="controls">
+          <button id="toggle" class="btn">Pause</button>
+          <label class="speed">
+            Speed
+            <input id="speed" type="range" min="1" max="50" value="12" />
+          </label>
+        </div>
+      </header>
+
+      <section class="stats" id="stats">
+        <div class="stat"><span class="label">Best bid</span><span id="s-bid" class="val bid">—</span></div>
+        <div class="stat"><span class="label">Best ask</span><span id="s-ask" class="val ask">—</span></div>
+        <div class="stat"><span class="label">Spread</span><span id="s-spread" class="val">—</span></div>
+        <div class="stat"><span class="label">Resting orders</span><span id="s-resting" class="val">—</span></div>
+        <div class="stat"><span class="label">Orders matched</span><span id="s-ops" class="val">—</span></div>
+        <div class="stat"><span class="label">Throughput</span><span id="s-rate" class="val">—</span></div>
+      </section>
+
+      <section class="book">
+        <div class="ladder">
+          <div class="col asks">
+            <div class="colhead"><span>Price</span><span>Size</span><span>Depth</span></div>
+            <div id="asks" class="rows"></div>
+          </div>
+          <div id="midrow" class="mid">
+            <span id="mid-price">—</span>
+            <span class="mid-label">mid</span>
+          </div>
+          <div class="col bids">
+            <div id="bids" class="rows"></div>
+            <div class="colhead"><span>Price</span><span>Size</span><span>Depth</span></div>
+          </div>
+        </div>
+
+        <aside class="tape">
+          <div class="colhead"><span>Time&nbsp;·&nbsp;tape</span><span>Price</span><span>Size</span></div>
+          <div id="tape" class="rows"></div>
+        </aside>
+      </section>
+
+      <footer class="foot">
+        <span id="status">loading WebAssembly engine…</span>
+        <a href="https://github.com/sahilmenon/Limit-Order-Book-Matching-Engine" class="src"
+          >source →</a
+        >
+      </footer>
+    </main>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
