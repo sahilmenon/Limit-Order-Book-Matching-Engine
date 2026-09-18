@@ -11,6 +11,10 @@ FetchContent_Declare(
 )
 # Don't let GoogleTest override this project's compiler/linker settings on MSVC.
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+# These tests use plain GoogleTest, never GoogleMock. Skipping gmock cuts build
+# time and keeps the deepest header path short enough for Windows' 260-char limit.
+set(BUILD_GMOCK OFF CACHE BOOL "" FORCE)
+set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 add_executable(lob_tests test_order_book.cpp test_fast_order_book.cpp)

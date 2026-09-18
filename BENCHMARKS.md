@@ -39,6 +39,20 @@ A synthetic but realistic mix over a bounded price band:
 20,000-operation randomised differential test, so the speedup carries no
 correctness cost. The naive book remains the oracle.
 
+## Test machine
+
+| | |
+|---|---|
+| CPU | Intel Core i7-1065G7 (Ice Lake, 4 cores / 8 threads, 1.30 GHz base) |
+| Memory | 16 GB |
+| Compiler | g++ 15.2.0, `-O3 -march=native` |
+| OS | Windows 11 |
+
+Absolute latency is hardware-bound, so these numbers mean little without the
+machine attached. This is a 2019 ultrabook under Windows: I pin no cores,
+isolate nothing, and leave turbo alone. A colocated server would post better
+absolute numbers, though the gap between the two books should hold.
+
 ## Result
 
 Best of 8 runs (2,000,000 ops, 1024-tick band). Taking the best of several runs

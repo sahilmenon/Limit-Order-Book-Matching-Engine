@@ -24,6 +24,12 @@ python scripts/extract_symbol_itch.py --ticker AAPL \
     --out web/public/sample.itch.bin                          # -> slice + .json sidecar
 ```
 
+The source session is one of Nasdaq's free TotalView-ITCH 5.0 sample files,
+published at [emi.nasdaq.com/ITCH](https://emi.nasdaq.com/ITCH/). Nasdaq owns
+that data. The slice rides along in this repo so the demo can replay a real book
+without pulling a multi-gigabyte session, and the MIT license covers only the
+code around it.
+
 ## Build the WASM
 
 Requires the [Emscripten SDK](https://emscripten.org/docs/getting_started/downloads.html):

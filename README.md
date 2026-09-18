@@ -1,5 +1,9 @@
 # Limit Order Book & Matching Engine (C++20)
 
+[![CI](https://github.com/sahilmenon/Limit-Order-Book-Matching-Engine/actions/workflows/ci.yml/badge.svg)](https://github.com/sahilmenon/Limit-Order-Book-Matching-Engine/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+![C++20](https://img.shields.io/badge/C%2B%2B-20-00599C.svg)
+
 A single-symbol limit order book with a **price-time-priority** matching engine,
 written in modern C++. Correctness comes first, speed second: the engine
 validates its book against replayed NASDAQ ITCH market data, then benchmarks
@@ -83,9 +87,11 @@ noise; full methodology in [BENCHMARKS.md](BENCHMARKS.md).
 | Milestone 1 | naive (`std::map` + `std::list`) | 538 ns | 2.80 µs | 31 µs | 3.2 M ops/s |
 | Milestone 3 | fast (flat ladder + intrusive pool) | 344 ns | 2.32 µs | 21 µs | 4.0 M ops/s |
 
-The latency edge holds on every run; throughput ranges from 1.2× to 2.7× and
-widens under load as the map's cache misses compound. Reproduce with
-`./build/bench [num_ops] [num_ticks]`.
+Measured on an Intel Core i7-1065G7 laptop (4 cores, 1.30 GHz base, 16 GB,
+g++ 15.2.0 `-O3 -march=native`); run it on your own box before trusting the
+nanoseconds. The latency edge holds on every run; throughput
+ranges from 1.2× to 2.7× and widens under load as the map's cache misses
+compound. Reproduce with `./build/bench [num_ops] [num_ticks]`.
 
 ## Roadmap
 
@@ -108,3 +114,17 @@ scripts/           ITCH fetch + Python reference reconstructor + cross-validator
 tests/             GoogleTest unit + differential tests
 data/              ITCH sample data (downloaded separately, git-ignored)
 ```
+
+## Market data
+
+`web/public/sample.itch.bin` holds a small slice of Nasdaq's free
+TotalView-ITCH 5.0 sample files, published at
+[emi.nasdaq.com/ITCH](https://emi.nasdaq.com/ITCH/). The demo ships that slice so
+it can replay a real book without pulling a multi-gigabyte session. Nasdaq owns
+the data. For full sessions, `scripts/fetch_itch.py` downloads them from the same
+place.
+
+## License
+
+[MIT](LICENSE). The license covers the code here. The Nasdaq market data above
+stays Nasdaq's.
